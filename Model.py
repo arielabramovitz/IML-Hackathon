@@ -32,27 +32,45 @@ def split_data(dt: DataFrame):
 def compress_data(X: DataFrame, y: DataFrame):
     pass
 
+
+# ------------------------------------------------------ #
+
 def optimize_logistic_regression():
+    """ Hyper-parameter optimization"""
     pass
 
 def optimize_nearest_neighbor():
+    """ Hyper-parameter optimization"""
     pass
 
 def optimize_SVM():
+    """ Hyper-parameter optimization"""
     pass
 
 def optimize_kernel_SVM():
+    """ Hyper-parameter optimization"""
     pass
 
 def optimize_naive_base():
+    """ Hyper-parameter optimization"""
     pass
 
 def optimize_decision_tree():
+    """ Hyper-parameter optimization"""
     pass
 
 def optimize_random_forest():
+    """ Hyper-parameter optimization"""
     pass
 
+# ------------------------------------------------------ #
+
+def compare_learners(learner_list: list):
+    """ Receiving a list of different learners, trains them and compares their
+     success.
+     returns the most successful one."""
+    # todo draw a nice graph
+    pass
 
 if __name__ == "__main__":
     np.random.seed(0)
