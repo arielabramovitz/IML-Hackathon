@@ -28,6 +28,7 @@ def parse():
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Basic stage'])
     data_frame = pd.get_dummies(data_frame, columns=["אבחנה-Histopatological degree"], drop_first=True)
     data_frame = pd.get_dummies(data_frame, columns=["אבחנה-Histological diagnosis"], drop_first=True)
+    data_frame = data_frame["אבחנה-Positive nodes"].fillna(0.0)
     # TODO Her2 - check unique and make the same
 
     print(data_frame)
