@@ -1,4 +1,6 @@
-""" Usage:
+"""
+This is Matanya's edit:
+Usage:
     <file-name> --gold=GOLD_FILE --pred=PRED_FILE [--debug]
 
 Options:
@@ -83,19 +85,8 @@ def parse_df_labels(df):
     ret_dict = {"resp": resp, "vals": ls}
     return ret_dict
 
-if __name__ == "__main__":
+def evaluate(gold_fn, pred_fn):
 
-    # Parse command line arguments
-    args = docopt(__doc__)
-    gold_fn = Path(args["--gold"])
-    pred_fn = Path(args["--pred"])
-
-    # Determine logging level
-    debug = args["--debug"]
-    if debug:
-        logging.basicConfig(level = logging.DEBUG)
-    else:
-        logging.basicConfig(level = logging.INFO)
 
     # Start computation
     gold_labels = parse_df_labels(pd.read_csv(gold_fn, keep_default_na = False))
@@ -120,7 +111,4 @@ if __name__ == "__main__":
                         y_pred = pred_multi_hot,
                         average = "micro")
 
-    logging.info(f"Micro f1 = {micro_f1} \n Macro f1 = {macro_f1}")
-
-    # End
-    logging.info("DONE")
+    return macro_f1, micro_f1
