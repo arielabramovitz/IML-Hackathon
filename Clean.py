@@ -103,9 +103,9 @@ def parse():
             'אבחנה-N -lymph nodes mark (TNM)'
         ], inplace=True)
 
-    data_frame["decade_born"] = (data_frame["אבחנה-Age"] / 10).astype(int)
-    data_frame = pd.get_dummies(data_frame, columns=["decade_born"], drop_first=True)
-    data_frame.drop(['אבחנה-Age'], inplace=True, axis=1)
+    # data_frame["decade_born"] = (data_frame["אבחנה-Age"] / 1).astype(int)
+    # data_frame = pd.get_dummies(data_frame, columns=["decade_born"], drop_first=True)
+    # data_frame.drop(['אבחנה-Age'], inplace=True, axis=1)
 
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Basic stage'], drop_first=True)
     data_frame = her2_column(data_frame, 'אבחנה-Her2')
@@ -118,11 +118,13 @@ def parse():
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Margin Type'], drop_first=True)
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-T -Tumor mark (TNM)'], drop_first=True)
 
-    data_frame["nodes_exam_pref"] = (data_frame['אבחנה-Nodes exam'].fillna(0) // 10).astype(int)
-    data_frame.drop(['אבחנה-Nodes exam'], inplace=True, axis=1)
-
-    data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0) // 10).astype(int)
-    data_frame.drop(['אבחנה-Positive nodes'], inplace=True, axis=1)
+    data_frame['אבחנה-Nodes exam'] = data_frame['אבחנה-Nodes exam'].fillna(0)
+    data_frame['אבחנה-Positive nodes'] = data_frame['אבחנה-Positive nodes'].fillna(0)
+    # data_frame["nodes_exam_pref"] = (data_frame['אבחנה-Nodes exam'].fillna(0) // 10).astype(int)
+    # data_frame.drop(['אבחנה-Nodes exam'], inplace=True, axis=1)
+    #
+    # data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0) // 10).astype(int)
+    # data_frame.drop(['אבחנה-Positive nodes'], inplace=True, axis=1)
 
     make_column_timestamp(data_frame,'אבחנה-Diagnosis date')
 
@@ -130,19 +132,19 @@ def parse():
 
 
 
-def predict_1(y, X):
+def predict_0(y, X):
     y = create_multi_hot_labels(y)
 
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
-    y_pred = tree.predict(X_train)
+    y_pred = tree.predict(X_val)
 
-    print("Evaluation: ", send_to_evaluation(y_train, y_pred))
+    print("Evaluation: ", send_to_evaluation_0(y_val, y_pred))
 
 
-def send_to_evaluation(y_gold, y_pred):
+def send_to_evaluation_0(y_gold, y_pred):
     """ Receives our multi-hot, puts it in a csv and evaluates"""
     y_gold_lst = pd.DataFrame(create_string_labeled_data(y_gold))
     y_pred_lst = pd.DataFrame(create_string_labeled_data(y_pred))
@@ -160,4 +162,4 @@ if __name__ == '__main__':
     df = parse()
     y_1, X = df["אבחנה-Location of distal metastases"], df.drop(
         columns=["אבחנה-Location of distal metastases"])
-    predict_1(y_1, X)
+    predict_0(y_1, X)
