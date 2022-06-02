@@ -34,13 +34,10 @@ def compress_data(X: DataFrame, y: DataFrame):
     pass
 
 
-def find_optimal_hyperparameter(X: DataFrame, y: Series, estimator: BaseEstimator, ranges: list, cv,
-                                *hyperparameters):
-    for i in range(len(hyperparameters)):
-        alphas = np.linspace(ranges[i][0], ranges[i][1], cv)
-        kfold = KFold(n_splits=cv)
-        train_inds, test_inds = kfold.split(X, y)
-
+def find_optimal_hyperparameter(X: DataFrame, y: Series, estimator: BaseEstimator, param_grid: dict, cv: int):
+    grid_cv = GridSearchCV(estimator, param_grid, cv=cv)
+    grid_cv.fit(X, y)
+    return grid_cv.cv_results_
 
 # ------------------------------------------------------ #
 
