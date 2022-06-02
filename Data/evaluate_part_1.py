@@ -78,7 +78,8 @@ def evaluate(gold_fn, pred_fn):
     # Trivial performance for reference
     trivial_mse = mean_squared_error(y_true = gold_vals,
                                      y_pred = trivial_vals)
-    logging.info(f"For reference, trivial (mean) mse: {trivial_mse}")
-
-    # End
-    logging.info("DONE")
+    return trivial_mse
+    # logging.info(f"For reference, trivial (mean) mse: {trivial_mse}")
+    #
+    # # End
+    # logging.info("DONE")
