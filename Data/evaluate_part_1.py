@@ -58,6 +58,7 @@ def evaluate(gold_fn, pred_fn):
     # Start computation
     gold_labels = parse_df_labels(pd.read_csv(gold_fn, keep_default_na = False))
     pred_labels = parse_df_labels(pd.read_csv(pred_fn, keep_default_na = False))
+    gold_labels["resp"]
     assert(gold_labels["resp"] == pred_labels["resp"])
     gold_vals = gold_labels["vals"]
     pred_vals = pred_labels["vals"]
