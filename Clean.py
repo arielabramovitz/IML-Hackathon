@@ -67,15 +67,16 @@ def create_multi_hot_labels(labels):
 def parse():
     # Use a breakpoint in the code line below to debug your script.
     data_frame = pd.read_csv('data/train.feats.csv')
-    labels = pd.read_csv("data/train.labels.0.csv")
-    data_frame = pd.concat(objs=[labels, data_frame], axis=1)
+    labels_0 = pd.read_csv("data/train.labels.0.csv")
+    labels_1 = pd.read_csv("data/train.labels.1.csv")
+    # This is done so that the rows that are removed will be for the labels too
+    data_frame = pd.concat(objs=[labels_0, labels_1, data_frame], axis=1)
 
     data_frame.drop(
         columns=[
             ' Form Name',
             ' Hospital',
             'User Name',
-            'אבחנה-Diagnosis date',
             'אבחנה-Ivi -Lymphovascular invasion',
             'אבחנה-KI67 protein',
             'אבחנה-Side',
@@ -123,19 +124,35 @@ def parse():
     data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0) // 10).astype(int)
     data_frame.drop(['אבחנה-Positive nodes'], inplace=True, axis=1)
 
-    y, X = data_frame["אבחנה-Location of distal metastases"], data_frame.drop(
-        columns=["אבחנה-Location of distal metastases"])
+    make_column_timestamp(data_frame,'אבחנה-Diagnosis date')
 
+    return data_frame
+    # y, X = data_frame["אבחנה-Location of distal metastases"], data_frame.drop(
+    #     columns=["אבחנה-Location of distal metastases"])
+    #
+    # y = create_multi_hot_labels(y)
+    #
+    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+    #
+    # tree = RandomForestClassifier()
+    # tree.fit(X_train, y_train)
+    # # score = tree.score(X_test, y_test)
+    # y_pred = tree.predict(X_val)
+    #
+    # print("Evaluation: ", send_to_evaluation(y_val, y_pred))
+
+
+def predict_1(y, X):
     y = create_multi_hot_labels(y)
 
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
-    # score = tree.score(X_test, y_test)
     y_pred = tree.predict(X_val)
 
     print("Evaluation: ", send_to_evaluation(y_val, y_pred))
+
 
 def send_to_evaluation(y_gold, y_pred):
     """ Receives our multi-hot, puts it in a csv and evaluates"""
@@ -151,4 +168,8 @@ def send_to_evaluation(y_gold, y_pred):
 
 
 if __name__ == '__main__':
-    parse()
+    np.random.seed(0)
+    df = parse()
+    y_1, X = df["אבחנה-Location of distal metastases"], df.drop(
+        columns=["אבחנה-Location of distal metastases"])
+    predict_1(y_1, X)
