@@ -1,4 +1,6 @@
-""" Usage:
+"""
+This is Matanya's edit:
+Usage:
     <file-name> --gold=GOLD_FILE --pred=PRED_FILE [--debug]
 
 Options:
@@ -25,11 +27,10 @@ import itertools
 import numpy as np
 from sklearn.metrics import f1_score
 
-
 # Local imports
 
 
-# ----
+#----
 
 
 def flatten(ls):
@@ -39,13 +40,11 @@ def flatten(ls):
     flat_ls = list(itertools.chain.from_iterable(ls))
     return flat_ls
 
-
 class Encode_Multi_Hot:
     """
     change the variable length format into a
     fixed size one hot vector per each label
     """
-
     def __init__(self):
         """
         init data structures
@@ -80,51 +79,36 @@ def parse_df_labels(df):
     """
     Return a dictionary of response name and values from df
     """
-    assert (len(df.columns) == 1)
+    assert(len(df.columns) == 1)
     resp = df.columns[0]
     ls = [eval(val) for val in df[resp]]
     ret_dict = {"resp": resp, "vals": ls}
     return ret_dict
 
+def evaluate(gold_fn, pred_fn):
 
-if __name__ == "__main__":
-
-    # Parse command line arguments
-    args = docopt(__doc__)
-    gold_fn = Path(args["--gold"])
-    pred_fn = Path(args["--pred"])
-
-    # Determine logging level
-    debug = args["--debug"]
-    if debug:
-        logging.basicConfig(level=logging.DEBUG)
-    else:
-        logging.basicConfig(level=logging.INFO)
 
     # Start computation
-    gold_labels = parse_df_labels(pd.read_csv(gold_fn, keep_default_na=False))
-    pred_labels = parse_df_labels(pd.read_csv(pred_fn, keep_default_na=False))
-    assert (gold_labels["resp"] == pred_labels["resp"])
+    gold_labels = parse_df_labels(pd.read_csv(gold_fn, keep_default_na = False))
+    pred_labels = parse_df_labels(pd.read_csv(pred_fn, keep_default_na = False))
+    assert(gold_labels["resp"] == pred_labels["resp"])
 
     enc = Encode_Multi_Hot()
     gold_vals = gold_labels["vals"]
     pred_vals = pred_labels["vals"]
-    assert (len(gold_vals) == len(pred_vals))
+    assert(len(gold_vals) == len(pred_vals))
     enc.fit(gold_vals)
 
     gold_multi_hot = [enc.enc(val) for val in gold_vals]
     pred_multi_hot = [enc.enc(val) for val in pred_vals]
 
     # Print micro-macro f1
-    macro_f1 = f1_score(y_true=gold_multi_hot,
-                        y_pred=pred_multi_hot,
-                        average="macro")
+    macro_f1 = f1_score(y_true = gold_multi_hot,
+                        y_pred = pred_multi_hot,
+                        average = "macro")
 
-    micro_f1 = f1_score(y_true=gold_multi_hot,
-                        y_pred=pred_multi_hot,
-                        average="micro")
+    micro_f1 = f1_score(y_true = gold_multi_hot,
+                        y_pred = pred_multi_hot,
+                        average = "micro")
 
-    logging.info(f"Micro f1 = {micro_f1} \n Macro f1 = {macro_f1}")
-
-    # End
-    logging.info("DONE")
+    return macro_f1, micro_f1
