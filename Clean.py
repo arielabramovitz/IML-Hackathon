@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np
+import csv
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MultiLabelBinarizer
+import Data.evaluate_part_0 as evaluate_file
 
 ind_to_label = dict()
 label_to_ind = dict()
@@ -37,8 +39,8 @@ def create_string_labeled_data(predictions):
         for i in range(len(line)):
             if line[i] == 1:
                 curr.append(ind_to_label[i])
-        converted.append(curr)
-    print(converted)
+        converted.append(str(curr))
+    converted
     return converted
 
 
@@ -50,8 +52,8 @@ def create_multi_hot_labels(labels):
         data.append(s)
         for i in s:
             if len(i) > 0 and i not in classes:
-                ind_to_label[len(classes)-1] = i
-                label_to_ind[i] = len(classes)-1
+                ind_to_label[len(classes)] = i
+                label_to_ind[i] = len(classes)
                 classes.append(i)
     m = MultiLabelBinarizer(classes=classes)
     m.fit(data)
@@ -126,12 +128,19 @@ def parse():
 
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
-    score = tree.score(X_test, y_test)
+    # score = tree.score(X_test, y_test)
     pred_y = tree.predict(X_test)
-    t = create_string_labeled_data(pred_y)
-
-
-
+    y_pred_lst = create_string_labeled_data(pred_y)
+    print(y_pred_lst)
+    y_test_lst = create_string_labeled_data(y_test)
+    print(y_test_lst)
+    df_pred = pd.DataFrame(y_pred_lst)
+    df_test = pd.DataFrame(y_test_lst)
+    df_pred.to_csv('pred.labels.0.csv', index=False)
+    df_test.to_csv('test.labels.0.csv', index=False)
+    print(len(df_pred.columns))
+    print(df_test)
+    macro_f1, micro_f1 = evaluate_file.evaluate("pred.labels.0.csv", 'test.labels.0.csv')
 
 if __name__ == '__main__':
     parse()
