@@ -28,50 +28,61 @@ def make_column_timestamp(data_frame, col_name):
 
 def parse():
     # Use a breakpoint in the code line below to debug your script.
-    data_frame = pd.read_csv('data/train.feats.csv')
+    data_frame = pd.read_csv('train.feats.csv')
 
     data_frame.drop(
         columns=[
             ' Form Name',
             ' Hospital',
             'User Name',
-            'id-hushed_internalpatientid',
-            'surgery before or after-Activity date',
+            'אבחנה-Diagnosis date',
+            'אבחנה-Ivi -Lymphovascular invasion',
+            'אבחנה-KI67 protein',
+            'אבחנה-Side',
+            'אבחנה-Stage',
+
+            'אבחנה-Surgery date1',
+            'אבחנה-Surgery name1',
+            'אבחנה-Surgery date2',
+            'אבחנה-Surgery name2',
+            'אבחנה-Surgery date3',
+            'אבחנה-Surgery name3',
+
             'אבחנה-Tumor depth',
             'אבחנה-Tumor width',
-            'אבחנה-Surgery date1',
-            'אבחנה-Surgery date2',
-            'אבחנה-Surgery date3',
-            'אבחנה-Surgery name3'
-        ], inplace=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Basic stage'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-T -Tumor mark (TNM)'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['surgery before or after-Actual activity'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Surgery name1'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Surgery name2'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-M -metastases mark (TNM)'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Margin Type'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Lymphatic penetration'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Side'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histological diagnosis'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histopatological degree'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Surgery sum'], drop_first=True)
+            'אבחנה-Surgery sum',
 
-    make_column_timestamp(data_frame, 'אבחנה-Diagnosis date')
+            'אבחנה-er',
+            'אבחנה-pr',
+
+            'surgery before or after-Activity date',
+            'surgery before or after-Actual activity',
+            'id-hushed_internalpatientid',
+
+            'אבחנה-N -lymph nodes mark (TNM)'
+        ], inplace=True)
 
     data_frame["decade_born"] = (data_frame["אבחנה-Age"]/10).astype(int)
     data_frame = pd.get_dummies(data_frame, columns=["decade_born"], drop_first=True)
     data_frame = data_frame.drop(["אבחנה-Age"], 1)
-    #data_frame = data_frame.drop("yr_built", 1)
-    print()
 
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Basic stage'], drop_first=True)
     data_frame = her2_column(data_frame, 'אבחנה-Her2')
-    #make_column_timestamp(data_frame, 'אבחנה-Surgery date2')
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Her2'], drop_first=True)
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histological diagnosis'], drop_first=True)
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histopatological degree'], drop_first=True)
 
-   # print(data_frame['אבחנה-Surgery sum'].value_counts())
-    #print(data_frame['אבחנה-Margin Type'].value_counts())
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Lymphatic penetration'], drop_first=True)
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-M -metastases mark (TNM)'], drop_first=True)
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Margin Type'], drop_first=True)
+    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-T -Tumor mark (TNM)'], drop_first=True)
 
-    print(data_frame.head())
+    data_frame["nodes_exam_pref"] = (data_frame['אבחנה-Nodes exam'].fillna(0)//10).astype(int)
+    data_frame = data_frame.drop(['אבחנה-Nodes exam'], 1)
+
+    data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0)//10).astype(int)
+    data_frame = data_frame.drop(['אבחנה-Positive nodes'], 1)
+
 
 if __name__ == '__main__':
     parse()
