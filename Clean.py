@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 import csv
@@ -40,11 +42,13 @@ def create_string_labeled_data(predictions):
             if line[i] == 1:
                 curr.append(ind_to_label[i])
         converted.append(str(curr))
-    converted
     return converted
 
 
 def create_multi_hot_labels(labels):
+    """
+    Turns the string labels into multi hot/
+    """
     classes = []
     data = []
     for row in labels:
@@ -63,15 +67,16 @@ def create_multi_hot_labels(labels):
 def parse():
     # Use a breakpoint in the code line below to debug your script.
     data_frame = pd.read_csv('data/train.feats.csv')
-    labels = pd.read_csv("data/train.labels.0.csv")
-    data_frame = pd.concat(objs=[labels, data_frame], axis=1)
+    labels_0 = pd.read_csv("data/train.labels.0.csv")
+    labels_1 = pd.read_csv("data/train.labels.1.csv")
+    # This is done so that the rows that are removed will be for the labels too
+    data_frame = pd.concat(objs=[labels_0, labels_1, data_frame], axis=1)
 
     data_frame.drop(
         columns=[
             ' Form Name',
             ' Hospital',
             'User Name',
-            'אבחנה-Diagnosis date',
             'אבחנה-Ivi -Lymphovascular invasion',
             'אבחנה-KI67 protein',
             'אבחנה-Side',
@@ -119,28 +124,52 @@ def parse():
     data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0) // 10).astype(int)
     data_frame.drop(['אבחנה-Positive nodes'], inplace=True, axis=1)
 
-    y, X = data_frame["אבחנה-Location of distal metastases"], data_frame.drop(
-        columns=["אבחנה-Location of distal metastases"])
+    make_column_timestamp(data_frame,'אבחנה-Diagnosis date')
 
+    return data_frame
+    # y, X = data_frame["אבחנה-Location of distal metastases"], data_frame.drop(
+    #     columns=["אבחנה-Location of distal metastases"])
+    #
+    # y = create_multi_hot_labels(y)
+    #
+    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+    #
+    # tree = RandomForestClassifier()
+    # tree.fit(X_train, y_train)
+    # # score = tree.score(X_test, y_test)
+    # y_pred = tree.predict(X_val)
+    #
+    # print("Evaluation: ", send_to_evaluation(y_val, y_pred))
+
+
+def predict_1(y, X):
     y = create_multi_hot_labels(y)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
-    # score = tree.score(X_test, y_test)
-    pred_y = tree.predict(X_test)
-    y_pred_lst = create_string_labeled_data(pred_y)
-    print(y_pred_lst)
-    y_test_lst = create_string_labeled_data(y_test)
-    print(y_test_lst)
-    df_pred = pd.DataFrame(y_pred_lst)
-    df_test = pd.DataFrame(y_test_lst)
-    df_pred.to_csv('pred.labels.0.csv', index=False)
-    df_test.to_csv('test.labels.0.csv', index=False)
-    print(len(df_pred.columns))
-    print(df_test)
-    macro_f1, micro_f1 = evaluate_file.evaluate("pred.labels.0.csv", 'test.labels.0.csv')
+    y_pred = tree.predict(X_val)
+
+    print("Evaluation: ", send_to_evaluation(y_val, y_pred))
+
+
+def send_to_evaluation(y_gold, y_pred):
+    """ Receives our multi-hot, puts it in a csv and evaluates"""
+    y_gold_lst = pd.DataFrame(create_string_labeled_data(y_gold))
+    y_pred_lst = pd.DataFrame(create_string_labeled_data(y_pred))
+    y_gold_lst.to_csv('temp_gold.labels.0.csv', index=False)
+    y_pred_lst.to_csv('temp_pred.labels.0.csv', index=False)
+    macro_f1, micro_f1 = evaluate_file.evaluate('temp_gold.labels.0.csv',
+                                                "temp_pred.labels.0.csv")
+    os.remove('temp_gold.labels.0.csv')
+    os.remove('temp_pred.labels.0.csv')
+    return macro_f1, micro_f1
+
 
 if __name__ == '__main__':
-    parse()
+    np.random.seed(0)
+    df = parse()
+    y_1, X = df["אבחנה-Location of distal metastases"], df.drop(
+        columns=["אבחנה-Location of distal metastases"])
+    predict_1(y_1, X)

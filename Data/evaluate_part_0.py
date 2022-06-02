@@ -99,8 +99,8 @@ def evaluate(gold_fn, pred_fn):
     assert(len(gold_vals) == len(pred_vals))
     enc.fit(gold_vals)
 
-    gold_multi_hot = [enc.enc(val) for val in gold_vals]
-    pred_multi_hot = [enc.enc(val) for val in pred_vals]
+    gold_multi_hot = np.array([enc.enc(val) for val in gold_vals])
+    pred_multi_hot = np.array([enc.enc(val) for val in pred_vals])
 
     # Print micro-macro f1
     macro_f1 = f1_score(y_true = gold_multi_hot,
