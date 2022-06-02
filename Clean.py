@@ -13,7 +13,6 @@ import Data.evaluate_part_1 as evaluate_file_1
 ind_to_label = dict()
 label_to_ind = dict()
 
-
 def her2_column(data, col_name):
     neg_regex = '[NnGg]|[של]|0'
     pos_regex = '[PpSs]|[חב]|[123]|-|\+'
@@ -36,7 +35,6 @@ def make_column_timestamp(data_frame, col_name):
         data_frame[col_name].astype('datetime64[ns]')
 
     data_frame[col_name] = data_frame[col_name].values.astype(np.int64) // 10 ** 9
-
 
 def create_string_labeled_data(predictions):
     converted = []
@@ -70,6 +68,7 @@ def create_multi_hot_labels(labels):
 
 def parse():
     # Use a breakpoint in the code line below to debug your script.
+    # todo take the df from the args and not like that
     data_frame = pd.read_csv('data/train.feats.csv')
     labels_0 = pd.read_csv("data/train.labels.0.csv")
     labels_1 = pd.read_csv("data/train.labels.1.csv")
@@ -124,16 +123,16 @@ def parse():
 
     data_frame['אבחנה-Nodes exam'] = data_frame['אבחנה-Nodes exam'].fillna(0)
     data_frame['אבחנה-Positive nodes'] = data_frame['אבחנה-Positive nodes'].fillna(0)
-    data_frame['אבחנה-Tumor size'] = labels_1
     # data_frame["nodes_exam_pref"] = (data_frame['אבחנה-Nodes exam'].fillna(0) // 10).astype(int)
     # data_frame.drop(['אבחנה-Nodes exam'], inplace=True, axis=1)
     #
     # data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0) // 10).astype(int)
     # data_frame.drop(['אבחנה-Positive nodes'], inplace=True, axis=1)
 
-    make_column_timestamp(data_frame, 'אבחנה-Diagnosis date')
+    make_column_timestamp(data_frame,'אבחנה-Diagnosis date')
 
     return data_frame
+
 
 
 def predict_0(y, X):
@@ -147,41 +146,40 @@ def predict_0(y, X):
 
     print("Evaluation: ", send_to_evaluation_0(y_val, y_pred))
 
-
 def predict_1(y, X):
     # y = create_multi_hot_labels(y)
     # todo make the Tumor location thing into a multi hot feature too
 
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
-    tree = RandomForestRegressor(max_depth=20)
+    tree = RandomForestRegressor()
     tree.fit(X_train, y_train)
-    y_pred = tree.predict(X_val)
+    y_pred = tree.predict(X_train)
 
-    print("Evaluation: ", send_to_evaluation_1(y_val, y_pred))
+    print("Evaluation: ", send_to_evaluation_1(y_train, y_pred))
+
 
 
 def send_to_evaluation_0(y_gold, y_pred):
     """ Receives our multi-hot, puts it in a csv and evaluates"""
-    y_gold_lst = pd.DataFrame(create_string_labeled_data(y_gold))
-    y_pred_lst = pd.DataFrame(create_string_labeled_data(y_pred))
-    y_gold_lst.to_csv('temp_gold.labels.0.csv', index=False)
-    y_pred_lst.to_csv('temp_pred.labels.0.csv', index=False)
+    y_gold_df = pd.DataFrame(create_string_labeled_data(y_gold))
+    y_pred_df = pd.DataFrame(create_string_labeled_data(y_pred))
+    y_gold_df.to_csv('temp_gold.labels.0.csv', index=False)
+    y_pred_df.to_csv('temp_pred.labels.0.csv', index=False)
     macro_f1, micro_f1 = evaluate_file_0.evaluate('temp_gold.labels.0.csv',
-                                                  "temp_pred.labels.0.csv")
+                                                "temp_pred.labels.0.csv")
     os.remove('temp_gold.labels.0.csv')
     os.remove('temp_pred.labels.0.csv')
     return macro_f1, micro_f1
 
-
 def send_to_evaluation_1(y_gold, y_pred):
     """ Receives our multi-hot, puts it in a csv and evaluates"""
-    y_gold_lst = pd.DataFrame(list(y_gold))
-    y_pred_lst = pd.DataFrame(list(y_pred))
-    y_gold_lst.to_csv('temp_gold.labels.1.csv', index=False)
-    y_pred_lst.to_csv('temp_pred.labels.1.csv', index=False)
+    y_gold_df = pd.DataFrame(list(y_gold))
+    y_pred_df = pd.DataFrame(list(y_pred))
+    y_gold_df.to_csv('temp_gold.labels.1.csv', index=False)
+    y_pred_df.to_csv('temp_pred.labels.1.csv', index=False)
     mse = evaluate_file_1.evaluate('temp_gold.labels.1.csv',
-                                   "temp_pred.labels.1.csv")
+                                                "temp_pred.labels.1.csv")
     os.remove('temp_gold.labels.1.csv')
     os.remove('temp_pred.labels.1.csv')
     return mse
@@ -193,7 +191,9 @@ if __name__ == '__main__':
     y_0, X_0 = df["אבחנה-Location of distal metastases"], df.drop(
         columns=["אבחנה-Location of distal metastases"])
     y_1, X_1 = df["אבחנה-Tumor size"], df.drop(
-        columns=["אבחנה-Tumor size", "אבחנה-Location of distal metastases"])
+        columns=["אבחנה-Tumor size"])
 
+    # todo this should be replaced by multi hot:
+    X_1 = X_1.drop(columns=["אבחנה-Location of distal metastases"])
     predict_0(y_0, X_0)
     predict_1(y_1, X_1)
