@@ -41,19 +41,19 @@ def parse_df_labels(df):
     ret_dict = {"resp": resp, "vals": ls}
     return ret_dict
 
-if __name__ == "__main__":
+def evaluate(gold_fn, pred_fn):
 
-    # Parse command line arguments
-    args = docopt(__doc__)
-    gold_fn = Path(args["--gold"])
-    pred_fn = Path(args["--pred"])
-
-    # Determine logging level
-    debug = args["--debug"]
-    if debug:
-        logging.basicConfig(level = logging.DEBUG)
-    else:
-        logging.basicConfig(level = logging.INFO)
+    # # Parse command line arguments
+    # args = docopt(__doc__)
+    # gold_fn = Path(args["--gold"])
+    # pred_fn = Path(args["--pred"])
+    #
+    # # Determine logging level
+    # debug = args["--debug"]
+    # if debug:
+    #     logging.basicConfig(level = logging.DEBUG)
+    # else:
+    #     logging.basicConfig(level = logging.INFO)
 
     # Start computation
     gold_labels = parse_df_labels(pd.read_csv(gold_fn, keep_default_na = False))
