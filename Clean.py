@@ -4,6 +4,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MultiLabelBinarizer
 
+ind_to_label = dict()
+label_to_ind = dict()
+
 def her2_column(data, col_name):
     neg_regex = '[NnGg]|[של]|0'
     pos_regex = '[PpSs]|[חב]|[123]|-|\+'
@@ -27,6 +30,17 @@ def make_column_timestamp(data_frame, col_name):
 
     data_frame[col_name] = data_frame[col_name].values.astype(np.int64) // 10 ** 9
 
+def create_string_labeled_data(predictions):
+    converted = []
+    for line in predictions:
+        curr = []
+        for i in range(len(line)):
+            if line[i] == 1:
+                curr.append(ind_to_label[i])
+        converted.append(curr)
+    print(converted)
+    return converted
+
 
 def create_multi_hot_labels(labels):
     classes = []
@@ -35,9 +49,10 @@ def create_multi_hot_labels(labels):
         s = str(row).strip("[").strip("]").replace("'", "").split(", ")
         data.append(s)
         for i in s:
-            if i not in classes:
+            if len(i) > 0 and i not in classes:
+                ind_to_label[len(classes)-1] = i
+                label_to_ind[i] = len(classes)-1
                 classes.append(i)
-    classes.pop()
     m = MultiLabelBinarizer(classes=classes)
     m.fit(data)
     return m.transform(data)
@@ -45,8 +60,8 @@ def create_multi_hot_labels(labels):
 
 def parse():
     # Use a breakpoint in the code line below to debug your script.
-    data_frame = pd.read_csv('train.feats.csv')
-    labels = pd.read_csv("train.labels.0.csv")
+    data_frame = pd.read_csv('data/train.feats.csv')
+    labels = pd.read_csv("data/train.labels.0.csv")
     data_frame = pd.concat(objs=[labels, data_frame], axis=1)
 
     data_frame.drop(
@@ -81,7 +96,7 @@ def parse():
             'אבחנה-N -lymph nodes mark (TNM)'
         ], inplace=True)
 
-    data_frame["decade_born"] = (data_frame["אבחנה-Age"]/10).astype(int)
+    data_frame["decade_born"] = (data_frame["אבחנה-Age"] / 10).astype(int)
     data_frame = pd.get_dummies(data_frame, columns=["decade_born"], drop_first=True)
     data_frame.drop(['אבחנה-Age'], inplace=True, axis=1)
 
@@ -96,32 +111,25 @@ def parse():
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Margin Type'], drop_first=True)
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-T -Tumor mark (TNM)'], drop_first=True)
 
-    data_frame["nodes_exam_pref"] = (data_frame['אבחנה-Nodes exam'].fillna(0)//10).astype(int)
+    data_frame["nodes_exam_pref"] = (data_frame['אבחנה-Nodes exam'].fillna(0) // 10).astype(int)
     data_frame.drop(['אבחנה-Nodes exam'], inplace=True, axis=1)
 
-    data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0)//10).astype(int)
-    data_frame.drop(['אבחנה-Positive nodes'], inplace=True,  axis=1)
+    data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0) // 10).astype(int)
+    data_frame.drop(['אבחנה-Positive nodes'], inplace=True, axis=1)
 
     y, X = data_frame["אבחנה-Location of distal metastases"], data_frame.drop(
         columns=["אבחנה-Location of distal metastases"])
 
     y = create_multi_hot_labels(y)
 
-    X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=0.2)
-
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
     score = tree.score(X_test, y_test)
     pred_y = tree.predict(X_test)
+    t = create_string_labeled_data(pred_y)
 
-    score = 0
-    for i in range(len(pred_y)):
-        if np.all(pred_y[i] == y_test[i]):
-            score += 1
-
-    score /= len(pred_y)
-    print(score)
 
 
 
