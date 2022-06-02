@@ -173,8 +173,8 @@ def send_to_evaluation_0(y_gold, y_pred):
 
 def send_to_evaluation_1(y_gold, y_pred):
     """ Receives our multi-hot, puts it in a csv and evaluates"""
-    y_gold_df = pd.DataFrame(y_gold)
-    y_pred_df = pd.DataFrame(y_pred)
+    y_gold_df = pd.DataFrame(list(y_gold))
+    y_pred_df = pd.DataFrame(list(y_pred))
     y_gold_df.to_csv('temp_gold.labels.1.csv', index=False)
     y_pred_df.to_csv('temp_pred.labels.1.csv', index=False)
     mse = evaluate_file_1.evaluate('temp_gold.labels.1.csv',
@@ -194,5 +194,5 @@ if __name__ == '__main__':
 
     # todo this should be replaced by multi hot:
     X_1 = X_1.drop(columns=["אבחנה-Location of distal metastases"])
-    # predict_0(y_0, X_0)
+    predict_0(y_0, X_0)
     predict_1(y_1, X_1)
