@@ -4,9 +4,11 @@ import pandas as pd
 import numpy as np
 import csv
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MultiLabelBinarizer
-import Data.evaluate_part_0 as evaluate_file
+import Data.evaluate_part_0 as evaluate_file_0
+import Data.evaluate_part_1 as evaluate_file_1
 
 ind_to_label = dict()
 label_to_ind = dict()
@@ -143,6 +145,19 @@ def predict_0(y, X):
 
     print("Evaluation: ", send_to_evaluation_0(y_val, y_pred))
 
+def predict_1(y, X):
+    # y = create_multi_hot_labels(y)
+    # todo make the Tumor location thing into a multi hot feature too
+
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
+
+    tree = RandomForestRegressor()
+    tree.fit(X_train, y_train)
+    y_pred = tree.predict(X_val)
+
+    print("Evaluation: ", send_to_evaluation_1(y_val, y_pred))
+
+
 
 def send_to_evaluation_0(y_gold, y_pred):
     """ Receives our multi-hot, puts it in a csv and evaluates"""
@@ -150,11 +165,23 @@ def send_to_evaluation_0(y_gold, y_pred):
     y_pred_lst = pd.DataFrame(create_string_labeled_data(y_pred))
     y_gold_lst.to_csv('temp_gold.labels.0.csv', index=False)
     y_pred_lst.to_csv('temp_pred.labels.0.csv', index=False)
-    macro_f1, micro_f1 = evaluate_file.evaluate('temp_gold.labels.0.csv',
+    macro_f1, micro_f1 = evaluate_file_0.evaluate('temp_gold.labels.0.csv',
                                                 "temp_pred.labels.0.csv")
     os.remove('temp_gold.labels.0.csv')
     os.remove('temp_pred.labels.0.csv')
     return macro_f1, micro_f1
+
+def send_to_evaluation_1(y_gold, y_pred):
+    """ Receives our multi-hot, puts it in a csv and evaluates"""
+    y_gold_lst = pd.DataFrame(create_string_labeled_data(y_gold))
+    y_pred_lst = pd.DataFrame(create_string_labeled_data(y_pred))
+    y_gold_lst.to_csv('temp_gold.labels.1.csv', index=False)
+    y_pred_lst.to_csv('temp_pred.labels.1.csv', index=False)
+    mse = evaluate_file_1.evaluate('temp_gold.labels.1.csv',
+                                                "temp_pred.labels.1.csv")
+    os.remove('temp_gold.labels.1.csv')
+    os.remove('temp_pred.labels.1.csv')
+    return mse
 
 
 if __name__ == '__main__':
@@ -165,3 +192,4 @@ if __name__ == '__main__':
     y_1, X_1 = df["אבחנה-Tumor size"], df.drop(
         columns=["אבחנה-Tumor size"])
     predict_0(y_0, X_0)
+    predict_1(y_1, X_1)
