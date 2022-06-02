@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-from datetime import datetime
-
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MultiLabelBinarizer
 
@@ -38,7 +37,7 @@ def create_multi_hot_labels(labels):
         for i in s:
             if i not in classes:
                 classes.append(i)
-
+    classes.pop()
     m = MultiLabelBinarizer(classes=classes)
     m.fit(data)
     return m.transform(data)
@@ -47,6 +46,8 @@ def create_multi_hot_labels(labels):
 def parse():
     # Use a breakpoint in the code line below to debug your script.
     data_frame = pd.read_csv('train.feats.csv')
+    labels = pd.read_csv("train.labels.0.csv")
+    data_frame = pd.concat(objs=[labels, data_frame], axis=1)
 
     data_frame.drop(
         columns=[
@@ -82,7 +83,7 @@ def parse():
 
     data_frame["decade_born"] = (data_frame["אבחנה-Age"]/10).astype(int)
     data_frame = pd.get_dummies(data_frame, columns=["decade_born"], drop_first=True)
-    data_frame = data_frame.drop(["אבחנה-Age"], 1)
+    data_frame.drop(['אבחנה-Age'], inplace=True, axis=1)
 
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Basic stage'], drop_first=True)
     data_frame = her2_column(data_frame, 'אבחנה-Her2')
@@ -96,10 +97,32 @@ def parse():
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-T -Tumor mark (TNM)'], drop_first=True)
 
     data_frame["nodes_exam_pref"] = (data_frame['אבחנה-Nodes exam'].fillna(0)//10).astype(int)
-    data_frame = data_frame.drop(['אבחנה-Nodes exam'], 1)
+    data_frame.drop(['אבחנה-Nodes exam'], inplace=True, axis=1)
 
     data_frame["pos_nodes_pref"] = (data_frame['אבחנה-Positive nodes'].fillna(0)//10).astype(int)
-    data_frame = data_frame.drop(['אבחנה-Positive nodes'], 1)
+    data_frame.drop(['אבחנה-Positive nodes'], inplace=True,  axis=1)
+
+    y, X = data_frame["אבחנה-Location of distal metastases"], data_frame.drop(
+        columns=["אבחנה-Location of distal metastases"])
+
+    y = create_multi_hot_labels(y)
+
+    X_train, X_test, y_train, y_test= train_test_split(X, y, test_size=0.2)
+
+
+    tree = RandomForestClassifier()
+    tree.fit(X_train, y_train)
+    score = tree.score(X_test, y_test)
+    pred_y = tree.predict(X_test)
+
+    score = 0
+    for i in range(len(pred_y)):
+        if np.all(pred_y[i] == y_test[i]):
+            score += 1
+
+    score /= len(pred_y)
+    print(score)
+
 
 
 if __name__ == '__main__':
