@@ -40,7 +40,6 @@ def create_string_labeled_data(predictions):
             if line[i] == 1:
                 curr.append(ind_to_label[i])
         converted.append(str(curr))
-    converted
     return converted
 
 
@@ -124,23 +123,25 @@ def parse():
 
     y = create_multi_hot_labels(y)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
 
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
     # score = tree.score(X_test, y_test)
-    pred_y = tree.predict(X_test)
-    y_pred_lst = create_string_labeled_data(pred_y)
-    print(y_pred_lst)
-    y_test_lst = create_string_labeled_data(y_test)
-    print(y_test_lst)
-    df_pred = pd.DataFrame(y_pred_lst)
-    df_test = pd.DataFrame(y_test_lst)
-    df_pred.to_csv('pred.labels.0.csv', index=False)
-    df_test.to_csv('test.labels.0.csv', index=False)
-    print(len(df_pred.columns))
-    print(df_test)
-    macro_f1, micro_f1 = evaluate_file.evaluate("pred.labels.0.csv", 'test.labels.0.csv')
+    y_pred = tree.predict(X_val)
+
+    print(send_to_evaluation(y_val, y_pred))
+
+def send_to_evaluation(y_gold, y_pred):
+    """ Receives our multihot, puts it in a csv and evaluates"""
+    y_gold_lst = pd.DataFrame(create_string_labeled_data(y_gold))
+    y_pred_lst = pd.DataFrame(create_string_labeled_data(y_pred))
+    y_gold_lst.to_csv('gold.labels.0.csv', index=False)
+    y_pred_lst.to_csv('pred.labels.0.csv', index=False)
+    macro_f1, micro_f1 = evaluate_file.evaluate('gold.labels.0.csv',
+                                                "pred.labels.0.csv")
+    return macro_f1, micro_f1
+
 
 if __name__ == '__main__':
     parse()
