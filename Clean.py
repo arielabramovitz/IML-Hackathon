@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MultiLabelBinarizer
 
 def her2_column(data, col_name):
     neg_regex = '[NnGg]|[של]|0'
@@ -25,6 +27,22 @@ def make_column_timestamp(data_frame, col_name):
         data_frame[col_name].astype('datetime64[ns]')
 
     data_frame[col_name] = data_frame[col_name].values.astype(np.int64) // 10 ** 9
+
+
+def create_multi_hot_labels(labels):
+    classes = []
+    data = []
+    for row in labels:
+        s = str(row).strip("[").strip("]").replace("'", "").split(", ")
+        data.append(s)
+        for i in s:
+            if i not in classes:
+                classes.append(i)
+
+    m = MultiLabelBinarizer(classes=classes)
+    m.fit(data)
+    return m.transform(data)
+
 
 def parse():
     # Use a breakpoint in the code line below to debug your script.

@@ -1,11 +1,17 @@
 import typing
-
+import Data.evaluate_part_0 as evaluate_file
+import os
+from subprocess import Popen, PIPE
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.cluster import SpectralClustering, KMeans
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LassoCV
 from sklearn.model_selection import GridSearchCV, train_test_split, KFold
+import optuna
+import torch
+import shlex
+import streamlit
 
 import numpy as np
 import pandas as pd
@@ -17,6 +23,9 @@ import plotly.graph_objs as go
 # Data Split:
 TEST_SIZE = 0.15
 TRAIN_SIZE = 0.85
+
+GOLD_FILE = "Data/train.labels.0.csv"
+EVALUATION_FILE = "Data/evaluate_part_0.py"
 
 
 def split_data(dt: DataFrame):
@@ -37,53 +46,20 @@ def find_optimal_hyperparameter(X: DataFrame, y: Series, estimator: BaseEstimato
     grid_cv.fit(X, y)
     return grid_cv.cv_results_
 
-# ------------------------------------------------------ #
+def objective(trial):
+    """
+    Evaluates the micro and the macro, I will need to choose by hand to which
+    one I care
+    """
+    macro_f1, micro_f1 = evaluate_file.evaluate(GOLD_FILE, GOLD_FILE)
 
-def optimize_logistic_regression():
-    """ Hyper-parameter optimization"""
-    pass
-
-
-def optimize_nearest_neighbor():
-    """ Hyper-parameter optimization"""
-    pass
+    return macro_f1
 
 
-def optimize_SVM():
-    """ Hyper-parameter optimization"""
-    pass
-
-
-def optimize_kernel_SVM():
-    """ Hyper-parameter optimization"""
-    pass
-
-
-def optimize_naive_base():
-    """ Hyper-parameter optimization"""
-    pass
-
-
-def optimize_decision_tree():
-    """ Hyper-parameter optimization"""
-    pass
-
-
-def optimize_random_forest():
-    """ Hyper-parameter optimization"""
-    pass
-
-
-# ------------------------------------------------------ #
-
-def compare_learners(learner_list: list):
-    """ Receiving a list of different learners, trains them and compares their
-     success.
-     returns the most successful one."""
-    # todo draw a nice graph
-    pass
+def learners_list():
+    learners = list()
 
 
 if __name__ == "__main__":
     np.random.seed(0)
-    pass
+
