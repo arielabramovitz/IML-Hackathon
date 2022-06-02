@@ -160,6 +160,7 @@ def send_to_evaluation_0(y_gold, y_pred):
 if __name__ == '__main__':
     np.random.seed(0)
     df = parse()
-    y_1, X = df["אבחנה-Location of distal metastases"], df.drop(
-        columns=["אבחנה-Location of distal metastases"])
-    predict_0(y_1, X)
+    y_0, y_1, X = df["אבחנה-Location of distal metastases"], df.drop(
+        columns=["אבחנה-Location of distal metastases"]), df.drop(
+        columns=["אבחנה-Tumor size"])
+    predict_0(y_0, X)
