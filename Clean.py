@@ -68,6 +68,7 @@ def create_multi_hot_labels(labels):
 
 def parse():
     # Use a breakpoint in the code line below to debug your script.
+    # todo take the df from the args and not like that
     data_frame = pd.read_csv('data/train.feats.csv')
     labels_0 = pd.read_csv("data/train.labels.0.csv")
     labels_1 = pd.read_csv("data/train.labels.1.csv")
