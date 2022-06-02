@@ -3,6 +3,17 @@ import numpy as np
 from datetime import datetime
 
 
+def her2_column(data, col_name):
+    neg_regex = '[NnGg]|[של]|0'
+    pos_regex = '[PpSs]|[חב]|[123]|-|\+'
+    data[col_name].replace(pos_regex, 1, regex=True, inplace=True)
+    data[col_name].replace(neg_regex, 0, regex=True, inplace=True)
+    data[col_name].fillna(0, inplace=True)
+    temp = (data[col_name] == 0) | (data[col_name] == 1)
+    data = data[temp]
+    return data
+
+
 def make_column_timestamp(data_frame, col_name):
     data_frame[col_name] = \
         data_frame[col_name].astype(str).str[0:10]
@@ -28,7 +39,8 @@ def parse():
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Basic stage'])
     data_frame = pd.get_dummies(data_frame, columns=["אבחנה-Histopatological degree"], drop_first=True)
     data_frame = pd.get_dummies(data_frame, columns=["אבחנה-Histological diagnosis"], drop_first=True)
-    # TODO Her2 - check unique and make the same
+
+    data_frame = her2_column(data_frame, 'אבחנה-Her2')
 
     print(data_frame)
 
