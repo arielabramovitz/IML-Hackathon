@@ -153,9 +153,9 @@ def predict_1(y, X):
 
     tree = RandomForestRegressor()
     tree.fit(X_train, y_train)
-    y_pred = tree.predict(X_val)
+    y_pred = tree.predict(X_train)
 
-    print("Evaluation: ", send_to_evaluation_1(y_val, y_pred))
+    print("Evaluation: ", send_to_evaluation_1(y_train, y_pred))
 
 
 
