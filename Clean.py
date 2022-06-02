@@ -127,19 +127,7 @@ def parse():
     make_column_timestamp(data_frame,'אבחנה-Diagnosis date')
 
     return data_frame
-    # y, X = data_frame["אבחנה-Location of distal metastases"], data_frame.drop(
-    #     columns=["אבחנה-Location of distal metastases"])
-    #
-    # y = create_multi_hot_labels(y)
-    #
-    # X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
-    #
-    # tree = RandomForestClassifier()
-    # tree.fit(X_train, y_train)
-    # # score = tree.score(X_test, y_test)
-    # y_pred = tree.predict(X_val)
-    #
-    # print("Evaluation: ", send_to_evaluation(y_val, y_pred))
+
 
 
 def predict_1(y, X):
@@ -149,9 +137,9 @@ def predict_1(y, X):
 
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
-    y_pred = tree.predict(X_val)
+    y_pred = tree.predict(X_train)
 
-    print("Evaluation: ", send_to_evaluation(y_val, y_pred))
+    print("Evaluation: ", send_to_evaluation(y_train, y_pred))
 
 
 def send_to_evaluation(y_gold, y_pred):
