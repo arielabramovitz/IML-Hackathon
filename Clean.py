@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 import csv
@@ -44,6 +46,9 @@ def create_string_labeled_data(predictions):
 
 
 def create_multi_hot_labels(labels):
+    """
+    Turns the string labels into multi hot/
+    """
     classes = []
     data = []
     for row in labels:
@@ -130,16 +135,18 @@ def parse():
     # score = tree.score(X_test, y_test)
     y_pred = tree.predict(X_val)
 
-    print(send_to_evaluation(y_val, y_pred))
+    print("Evaluation: ", send_to_evaluation(y_val, y_pred))
 
 def send_to_evaluation(y_gold, y_pred):
-    """ Receives our multihot, puts it in a csv and evaluates"""
+    """ Receives our multi-hot, puts it in a csv and evaluates"""
     y_gold_lst = pd.DataFrame(create_string_labeled_data(y_gold))
     y_pred_lst = pd.DataFrame(create_string_labeled_data(y_pred))
-    y_gold_lst.to_csv('gold.labels.0.csv', index=False)
-    y_pred_lst.to_csv('pred.labels.0.csv', index=False)
-    macro_f1, micro_f1 = evaluate_file.evaluate('gold.labels.0.csv',
-                                                "pred.labels.0.csv")
+    y_gold_lst.to_csv('temp_gold.labels.0.csv', index=False)
+    y_pred_lst.to_csv('temp_pred.labels.0.csv', index=False)
+    macro_f1, micro_f1 = evaluate_file.evaluate('temp_gold.labels.0.csv',
+                                                "temp_pred.labels.0.csv")
+    os.remove('temp_gold.labels.0.csv')
+    os.remove('temp_pred.labels.0.csv')
     return macro_f1, micro_f1
 
 
