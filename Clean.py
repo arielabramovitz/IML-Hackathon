@@ -62,6 +62,7 @@ def parse(X_df_fn, y_df_fn=None, y_df_fn_2=None):
             'אבחנה-Tumor depth',
             'אבחנה-Tumor width',
             'אבחנה-Surgery sum',
+            'אבחנה-T -Tumor mark (TNM)',
 
             'אבחנה-er',
             'אבחנה-pr',
@@ -70,20 +71,25 @@ def parse(X_df_fn, y_df_fn=None, y_df_fn_2=None):
             'surgery before or after-Actual activity',
             'id-hushed_internalpatientid',
 
-            'אבחנה-N -lymph nodes mark (TNM)'
+            'אבחנה-N -lymph nodes mark (TNM)',
+            'אבחנה-M -metastases mark (TNM)',
+            'אבחנה-T -Tumor mark (TNM)',
+            'אבחנה-Histological diagnosis',
+            'אבחנה-Histopatological degree'
+
         ], inplace=True)
 
 
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Basic stage'], drop_first=True)
     data_frame = her2_column(data_frame, 'אבחנה-Her2')
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Her2'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histological diagnosis'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histopatological degree'], drop_first=True)
+    #data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histological diagnosis'], drop_first=True)
+    #data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Histopatological degree'], drop_first=True)
 
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Lymphatic penetration'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-M -metastases mark (TNM)'], drop_first=True)
+    #data_frame = pd.get_dummies(data_frame, columns=['אבחנה-M -metastases mark (TNM)'], drop_first=True)
     data_frame = pd.get_dummies(data_frame, columns=['אבחנה-Margin Type'], drop_first=True)
-    data_frame = pd.get_dummies(data_frame, columns=['אבחנה-T -Tumor mark (TNM)'], drop_first=True)
+    #data_frame = pd.get_dummies(data_frame, columns=['אבחנה-T -Tumor mark (TNM)'], drop_first=True)
 
     data_frame['אבחנה-Nodes exam'] = data_frame['אבחנה-Nodes exam'].fillna(0)
     data_frame['אבחנה-Positive nodes'] = data_frame['אבחנה-Positive nodes'].fillna(0)
