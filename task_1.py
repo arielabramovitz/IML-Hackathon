@@ -18,24 +18,6 @@ TRAIN_LABELS_FN = "Data/train.labels.1.csv"
 TRAIN_X_FN = "Data/train.feats.csv"
 
 
-def create_multi_hot_labels(labels):
-    """
-    Turns the string labels into multi hot/
-    """
-    classes = []
-    data = []
-    for row in labels:
-        s = str(row).strip("[").strip("]").replace("'", "").split(", ")
-        data.append(s)
-        for i in s:
-            if len(i) > 0 and i not in classes:
-                ind_to_label[len(classes)] = i
-                label_to_ind[i] = len(classes)
-                classes.append(i)
-    m = MultiLabelBinarizer(classes=classes)
-    m.fit(data)
-    return m.transform(data)
-
 def validate_1(y, X):
     # y = create_multi_hot_labels(y)
     # todo make the Tumor location thing into a multi hot feature too
@@ -62,11 +44,17 @@ def send_to_evaluation_1(y_gold, y_pred):
     return mse
 
 
-def predict():
-    pass
+def predict_to_file(tree, X_test):
+    """Predicting the test and putting it in the file predictions.csv"""
+    y_pred = tree.predict(X_test)
+    y_pred_df = pd.DataFrame(list(y_pred))
+    y_pred_df.to_csv('part1/predictions.csv', index=False)
 
-def fit():
-    pass
+def fit(X_train, y_train):
+    """ Receives the X and y to train and returns a trained model"""
+    tree = RandomForestRegressor()
+    tree.fit(X_train, y_train)
+    return tree
 
 if __name__ == '__main__':
     np.random.seed(0)
