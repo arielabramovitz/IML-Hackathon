@@ -71,11 +71,19 @@ def send_to_evaluation_0(y_gold, y_pred):
     return macro_f1, micro_f1
 
 
-def predict():
-    pass
+def predict_to_file(tree, X_test):
+    """Predicting the test and putting it in the file predictions.csv"""
+    y_pred = tree.predict(X_test)
+    y_pred_df = pd.DataFrame(create_string_labeled_data(y_pred))
+    y_pred_df.to_csv('predictions.csv', index=False)
 
-def fit():
-    pass
+
+
+def fit(X_train, y_train):
+    """ Receives the X and y to train and returns a trained model"""
+    tree = RandomForestClassifier()
+    tree.fit(X_train, y_train)
+    return tree
 
 if __name__ == '__main__':
     np.random.seed(0)
