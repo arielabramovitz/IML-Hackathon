@@ -26,13 +26,19 @@ def make_column_timestamp(data_frame, col_name):
     data_frame[col_name] = data_frame[col_name].values.astype(np.int64) // 10 ** 9
 
 
-def parse(X_df_fn, y_df_fn=None):
+def parse(X_df_fn, y_df_fn=None, y_df_fn_2=None):
 
     # Use a breakpoint in the code line below to debug your script.
     data_frame = pd.read_csv(X_df_fn)
 
+    # Can do the clean for X, y, and another y
     if y_df_fn != None:
         labels = pd.read_csv(y_df_fn)
+        # This is done so that the rows that are removed will be for the labels too
+        data_frame = pd.concat(objs=[labels, data_frame], axis=1)
+
+    if y_df_fn_2 != None:
+        labels = pd.read_csv(y_df_fn_2)
         # This is done so that the rows that are removed will be for the labels too
         data_frame = pd.concat(objs=[labels, data_frame], axis=1)
 

@@ -81,6 +81,7 @@ def predict_to_file(tree, X_test):
 
 def fit(X_train, y_train):
     """ Receives the X and y to train and returns a trained model"""
+
     tree = RandomForestClassifier()
     tree.fit(X_train, y_train)
     return tree
